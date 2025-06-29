@@ -11,7 +11,7 @@ export default defineConfig({
   }),
   manifest: {
     name: 'Quick Quill',
-    description: 'Execute an AI prompt over a selected text.',
+    description: 'Browser extension to execute an AI prompt over a selected text',
     permissions: ['storage', 'contextMenus', '<all_urls>'],
   },
   webExt: {
