@@ -1,5 +1,7 @@
 # Quick Quill
 
+![Mozilla Add-on Version](https://img.shields.io/amo/v/quick-quill?style=for-the-badge&logo=firefox)
+
 A browser extension that allows you to execute AI prompts on selected text directly in your browser.
 
 ## Overview
