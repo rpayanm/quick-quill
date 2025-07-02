@@ -19,12 +19,18 @@ const getResponse = async (selectedText: string, prompt: Prompt) => {
   const provider = getProviderByModelId(apiKey.model);
   const aiObject = getObject(provider, apiKey.apiKey);
 
-  const result = await generateText({
-    model: aiObject(apiKey.model),
-    system: system,
-    prompt: `The text is "${selectedText}"`,
-  });
-  response = result.text;
+  try {
+    const result = await generateText({
+      model: aiObject(apiKey.model),
+      system: system,
+      prompt: `The text is "${selectedText}"`,
+    });
+    response = result.text;
+  }
+  catch (error) {
+    console.error(error);
+    response = 'Error: ' + error;
+  }
 
   return response;
 };

@@ -1,4 +1,4 @@
-import { AddApiKeyForm } from '@/entrypoints/options/AddApiKeyForm.tsx';
+import { ApiKeyForm } from '@/entrypoints/options/apiKeyForm.tsx';
 import {
   DndContext,
   closestCenter,
@@ -15,9 +15,11 @@ import {
 } from '@dnd-kit/sortable';
 
 import { ItemSortable } from './ItemSortable.tsx';
-import { AddPromptForm } from './AddPromptForm.tsx';
+import { PromptForm } from './promptForm.tsx';
 import { Prompt, ApiKey, store } from '@/utils/storage';
 import { ConfirmAction } from '@/entrypoints/options/ConfirmAction.tsx';
+import { EditKeyDialog } from '@/entrypoints/options/EditKeyDialog.tsx';
+import { EditPromptDialog } from '@/entrypoints/options/EditPromptDialog.tsx';
 
 function App() {
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
@@ -60,6 +62,57 @@ function App() {
     setOpenConfirmDialog(true);
   };
 
+  const [openEditKeyDialog, setOpenEditKeyDialog] = useState(false);
+
+  const [editingApiKey, setEditingApiKey] = useState<ApiKey | null>(null);
+
+  useEffect(() => {
+    async function updateApiKey() {
+      if (editingApiKey != null) {
+        let savedValues = await store.apiKeys.getValue();
+        const copied = [...savedValues];
+        const apiKey: ApiKey|undefined = copied.find((item) => item.id === editingApiKey.id);
+        if (apiKey) {
+          apiKey.apiKey = editingApiKey.apiKey;
+          apiKey.model = editingApiKey.model;
+          const index = copied.indexOf(apiKey);
+          if (index !== -1) {
+            copied[index] = apiKey;
+          }
+          await store.apiKeys.setValue(copied);
+        }
+      }
+    }
+
+    updateApiKey().catch(console.error);
+  }, [editingApiKey]);
+
+  const [openEditPromptDialog, setOpenEditPromptDialog] = useState(false);
+
+  const [editingPrompt, setEditingPrompt] = useState<Prompt | null>(null);
+
+  useEffect(() => {
+    async function updatePrompt() {
+      if (editingPrompt != null) {
+        let savedValues = await store.prompts.getValue();
+        const copied = [...savedValues];
+        const prompt: Prompt|undefined = copied.find((item) => item.id === editingPrompt.id);
+        if (prompt) {
+          prompt.apiKeyId = editingPrompt.apiKeyId;
+          prompt.name = editingPrompt.name;
+          prompt.prompt = editingPrompt.prompt;
+          const index = copied.indexOf(prompt);
+          if (index !== -1) {
+            copied[index] = prompt;
+          }
+          await store.prompts.setValue(copied);
+        }
+      }
+    }
+
+    updatePrompt().catch(console.error);
+  }, [editingPrompt]);
+
   const unwatchApiKeys = store.apiKeys.watch((newValue) => {
     setApiKeys(newValue);
   });
@@ -79,10 +132,25 @@ function App() {
           onConfirm={onConfirm}
         />
 
+        <EditKeyDialog
+          apiKey={editingApiKey}
+          setApiKey={setEditingApiKey}
+          open={openEditKeyDialog}
+          setOpen={setOpenEditKeyDialog}
+        />
+
+        <EditPromptDialog
+          apiKeys={apiKeys}
+          prompt={editingPrompt}
+          setPrompt={setEditingPrompt}
+          open={openEditPromptDialog}
+          setOpen={setOpenEditPromptDialog}
+        />
+
         <h2>API keys</h2>
         <div className="not-prose">
           <div className="mb-6">
-            <AddApiKeyForm/>
+            <ApiKeyForm/>
           </div>
         </div>
 
@@ -98,8 +166,9 @@ function App() {
                 items={apiKeys}
                 strategy={verticalListSortingStrategy}>
                 {apiKeys.map(item => <ItemSortable key={item.id} id={item.id}
-                                                           body={store.getMaskedApiKey(item)}
-                                                           onRemove={() => handleOpenDialog(() => handleRemoveApiKey(item.id))}/>)}
+                                                   onEdit={handleEditApiKey}
+                                                   body={store.getMaskedApiKey(item)}
+                                                   onRemove={() => handleOpenDialog(() => handleRemoveApiKey(item.id))}/>)}
               </SortableContext>
             </DndContext>
           </div>
@@ -108,7 +177,7 @@ function App() {
         <h2>Add new prompt</h2>
         <div className="not-prose">
           <div className="mb-6">
-            <AddPromptForm apiKeys={apiKeys}/>
+            <PromptForm apiKeys={apiKeys} />
           </div>
         </div>
 
@@ -123,8 +192,9 @@ function App() {
               items={prompts}
               strategy={verticalListSortingStrategy}>
               {prompts.map(item => <ItemSortable key={item.id} id={item.id}
-                                               body={item.name + ' - ' + item.prompt}
-                                               onRemove={() => handleOpenDialog(() => handleRemovePrompt(item.id))}/>)}
+                                                 onEdit={handleEditPrompt}
+                                                 body={item.name + ' - ' + item.prompt}
+                                                 onRemove={() => handleOpenDialog(() => handleRemovePrompt(item.id))}/>)}
             </SortableContext>
           </DndContext>
         </div>
@@ -176,6 +246,24 @@ function App() {
       store.prompts.setValue(newPrompts).catch(console.error);
       return newPrompts;
     });
+  }
+
+  function handleEditApiKey(id: string) {
+    const copied = [...apiKeys];
+    const apiKey = copied.find((item) => item.id === id);
+    if (apiKey) {
+      setEditingApiKey(apiKey);
+      setOpenEditKeyDialog(true);
+    }
+  }
+
+  function handleEditPrompt(id: string) {
+    const copied = [...prompts];
+    const prompt = copied.find((item) => item.id === id);
+    if (prompt) {
+      setEditingPrompt(prompt);
+      setOpenEditPromptDialog(true);
+    }
   }
 }
 

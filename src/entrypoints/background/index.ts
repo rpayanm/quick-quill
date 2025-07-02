@@ -1,6 +1,17 @@
 import { store } from '@/utils/storage.ts';
 
 export default defineBackground(() => {
+  const onContextMenuListener= async (info: any, tab: any) => {
+    const prompts = await store.prompts.getValue();
+    const prompt = prompts.find((prompt) => prompt.id === info.menuItemId);
+    if (prompt) {
+      if (!tab) {
+        return;
+      }
+      sendMessage('qqClickOnSelection', prompt, tab.id).catch(console.error);
+    }
+  };
+
   async function buildMenuPrompts() {
     const prompts = await store.prompts.getValue();
 
@@ -14,15 +25,8 @@ export default defineBackground(() => {
       });
     }
 
-    browser.contextMenus.onClicked.addListener((info, tab) => {
-      const prompt = prompts.find((prompt) => prompt.id === info.menuItemId);
-      if (prompt) {
-        if (!tab) {
-          return;
-        }
-        sendMessage('qqClickOnSelection', prompt, tab.id).catch(console.error);
-      }
-    });
+    browser.contextMenus.onClicked.removeListener(onContextMenuListener);
+    browser.contextMenus.onClicked.addListener(onContextMenuListener);
   }
 
   buildMenuPrompts().catch(console.error);

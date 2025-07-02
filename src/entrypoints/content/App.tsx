@@ -45,10 +45,6 @@ export function App() {
     display: 'none',
   });
 
-  const [responseStyle, setResponseStyle] = useState<CSSProperties>({
-    display: 'block',
-  });
-
   useEffect(() => {
     window.addEventListener('click', ({ target }) => {
       if (!(target instanceof HTMLElement)) {
@@ -94,7 +90,7 @@ export function App() {
     <>
       <div style={containerStyle}
            className="prose absolute z-50 bg-black text-white text-xs rounded-sm h-auto w-auto p-2.5 shadow-md">
-        <div style={responseStyle}
+        <div
              className="mr-8 max-w-md max-h-52 overflow-y-auto"
               dangerouslySetInnerHTML={{__html: response.replace(/\n/g, '<br>')}}></div>
         <Copy className="text-white cursor-pointer absolute top-1 right-1"

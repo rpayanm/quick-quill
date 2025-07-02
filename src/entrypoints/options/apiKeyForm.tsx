@@ -25,17 +25,29 @@ import { Input } from '@/components/ui/input';
 import { store } from '@/utils/storage.ts';
 import { getProviders, getProviderByModelId } from '@/utils/providers.ts';
 
+interface CustomProps {
+  submitText?: string,
+  apiKey?: ApiKey | null,
+  setApiKey?: (key: ApiKey) => void
+  onExternalSubmit?: () => void
+}
+
 const formSchema = z.object({
   apiKey: z.string().nonempty('API Key is required'),
   model: z.string().nonempty('Model is required'),
 });
 
-export function AddApiKeyForm() {
+export function ApiKeyForm({
+  submitText,
+  apiKey,
+  setApiKey,
+  onExternalSubmit,
+}: CustomProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      apiKey: '',
-      model: '',
+      apiKey: apiKey?.apiKey || '',
+      model: apiKey?.model || '',
     },
   });
 
@@ -44,14 +56,27 @@ export function AddApiKeyForm() {
       apiKey: '',
       model: '',
     });
-    let savedValues = await store.apiKeys.getValue();
-    const copied = [...savedValues];
-    const apiKey: ApiKey = {
-      ...formValues,
-      id: store.getId(),
-    };
-    copied.push(apiKey);
-    await store.apiKeys.setValue(copied);
+
+    if (onExternalSubmit) {
+      if (setApiKey) {
+        setApiKey({
+          id: apiKey?.id || store.getId(),
+          apiKey: formValues.apiKey,
+          model: formValues.model,
+        });
+      }
+      onExternalSubmit();
+    }
+    else {
+      let savedValues = await store.apiKeys.getValue();
+      const copied = [...savedValues];
+      const apiKey: ApiKey = {
+        ...formValues,
+        id: store.getId(),
+      };
+      copied.push(apiKey);
+      await store.apiKeys.setValue(copied);
+    }
   }
 
   const providers = getProviders();
@@ -108,7 +133,11 @@ export function AddApiKeyForm() {
             </FormItem>
           )}
         />
-        <Button type="submit">Add</Button>
+        {submitText ?
+          <Button className="w-full"
+                  type="submit">{submitText}</Button> :
+          <Button type="submit">Add</Button>
+        }
       </form>
     </Form>
   );

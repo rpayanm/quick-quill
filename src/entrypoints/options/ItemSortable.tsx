@@ -1,6 +1,11 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { CircleX, GripVertical } from 'lucide-react';
+import { CircleX, EllipsisVertical, GripVertical, Pencil } from 'lucide-react';
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu.tsx';
+import { Button } from '@/components/ui/button.tsx';
 
 export function ItemSortable(props: any) {
   const {
@@ -8,7 +13,7 @@ export function ItemSortable(props: any) {
     listeners,
     setNodeRef,
     transform,
-    transition
+    transition,
   } = useSortable({ id: props.id });
 
   const style = {
@@ -25,11 +30,29 @@ export function ItemSortable(props: any) {
   return (
     <div ref={setNodeRef} style={style} {...attributes}>
       <span style={{ cursor: 'grab', userSelect: 'none' }}
-              {...listeners}>
+            {...listeners}>
         <GripVertical/>
       </span>
       <span style={{ flex: 1 }}>{props.body}</span>
-      <CircleX style={{ cursor: 'pointer' }} onClick={() => props.onRemove(props.id)}/>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="secondary" size="icon" className="size-8">
+            <EllipsisVertical />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start">
+          <DropdownMenuGroup>
+            <DropdownMenuItem onClick={() => props.onEdit(props.id)}>
+              <Pencil />
+              Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => props.onRemove(props.id)}>
+              <CircleX />
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 }

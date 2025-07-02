@@ -22,23 +22,33 @@ import {
   SelectValue,
 } from '@/components/ui/select.tsx';
 
+interface CustomProps {
+  apiKeys: ApiKey[],
+  submitText?: string,
+  prompt?: Prompt | null,
+  setPrompt?: (prompt: Prompt) => void
+  onExternalSubmit?: () => void
+}
+
 const formSchema = z.object({
   name: z.string().nonempty('Name is required'),
   prompt: z.string().nonempty('Action is required'),
   apiKeyId: z.string().nonempty('API Key is required'),
 });
 
-export function AddPromptForm({
+export function PromptForm({
   apiKeys,
-}: {
-  apiKeys: ApiKey[]
-}) {
+  submitText,
+  prompt,
+  setPrompt,
+  onExternalSubmit,
+}: CustomProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: '',
-      prompt: '',
-      apiKeyId: '',
+      name: prompt?.name || '',
+      prompt: prompt?.prompt || '',
+      apiKeyId: prompt?.apiKeyId || '',
     },
   });
 
@@ -48,14 +58,27 @@ export function AddPromptForm({
       prompt: '',
       apiKeyId: '',
     });
-    let savedValues = await store.prompts.getValue();
-    const copied = [...savedValues];
-    const prompt = {
-      ...formValues,
-      id: store.getId(),
-    };
-    copied.push(prompt);
-    await store.prompts.setValue(copied);
+     if (onExternalSubmit) {
+      if (setPrompt) {
+        setPrompt({
+          id: prompt?.id || store.getId(),
+          name: formValues.name,
+          prompt: formValues.prompt,
+          apiKeyId: formValues.apiKeyId,
+        });
+      }
+      onExternalSubmit();
+    }
+    else {
+       let savedValues = await store.prompts.getValue();
+       const copied = [...savedValues];
+       const prompt = {
+         ...formValues,
+         id: store.getId(),
+       };
+       copied.push(prompt);
+       await store.prompts.setValue(copied);
+     }
   }
 
   return (
@@ -119,7 +142,11 @@ export function AddPromptForm({
             </FormItem>
           )}
         />
-        <Button type="submit">Add</Button>
+         {submitText ?
+          <Button className="w-full"
+                  type="submit">{submitText}</Button> :
+          <Button type="submit">Add</Button>
+        }
       </form>
     </Form>
   );
