@@ -1,6 +1,8 @@
 # Quick Quill
 
 [![Mozilla Add-on Version](https://img.shields.io/amo/v/quick-quill?style=for-the-badge&logo=firefox)](https://addons.mozilla.org/en-US/firefox/addon/quick-quill/)
+[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/ijaogpcnbfkimbcapjalpagcmkcbcdfm?style=for-the-badge&logo=chrome)](https://chrome.google.com/webstore/detail/quick-quill/ijaogpcnbfkimbcapjalpagcmkcbcdfm)
+
 
 A browser extension that allows you to execute AI prompts on selected text directly in your browser.
 
