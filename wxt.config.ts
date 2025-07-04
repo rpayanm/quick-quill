@@ -14,7 +14,4 @@ export default defineConfig({
     description: 'A browser extension that allows you to execute AI prompts on selected text directly in your browser.',
     permissions: ['storage', 'contextMenus', '<all_urls>'],
   },
-  webExt: {
-    startUrls: ['https://translate.google.com/'],
-  },
 });
