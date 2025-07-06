@@ -1,6 +1,6 @@
 {
   "name": "quick-quill",
-  "description": "manifest.json description",
+  "description": "A browser extension that allows you to execute AI prompts on selected text directly in your browser.",
   "private": true,
   "version": "0.0.2",
   "type": "module",

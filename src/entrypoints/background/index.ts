@@ -1,7 +1,7 @@
 import { store } from '@/utils/storage.ts';
 
 export default defineBackground(() => {
-  const onContextMenuListener= async (info: any, tab: any) => {
+  const onContextMenuListener = async (info: any, tab: any) => {
     const prompts = await store.prompts.getValue();
     const prompt = prompts.find((prompt) => prompt.id === info.menuItemId);
     if (prompt) {
