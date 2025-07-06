@@ -9,6 +9,7 @@ interface Model {
 interface Providers {
   [provider: string]: {
     name: string;
+    registration_url: string;
     models: Model[];
   };
 }
@@ -16,6 +17,7 @@ interface Providers {
 const providers: Providers = {
   openai: {
     name: 'OpenAI',
+    registration_url: 'https://platform.openai.com/api-keys',
     models: [
       { id: 'gpt-4.1-nano', label: 'GPT-4.1 nano' },
       { id: 'gpt-4o-mini', label: 'GPT-4o mini' },
@@ -26,6 +28,7 @@ const providers: Providers = {
   },
   google: {
     name: 'Google',
+    registration_url: 'https://aistudio.google.com/apikey',
     models: [
       { id: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
       { id: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro' },

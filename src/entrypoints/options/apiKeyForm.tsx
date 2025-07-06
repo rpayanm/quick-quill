@@ -81,6 +81,20 @@ export function ApiKeyForm({
 
   const providers = getProviders();
 
+  const selectedModelId = form.watch('model');
+
+  let registrationUrl = '';
+  if (selectedModelId) {
+    let provider = getProviderByModelId(selectedModelId);
+    if (provider) {
+      registrationUrl = providers[provider].registration_url;
+    }
+  }
+
+  const registrationUrlText = selectedModelId
+    ? `You can get your API key from <a class="underline text-blue-500" href="${registrationUrl}" target="_blank" rel="noopener noreferrer">here</a>.`
+    : '';
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -127,7 +141,7 @@ export function ApiKeyForm({
                 <Input placeholder="API Key" {...field} />
               </FormControl>
               <FormDescription>
-                This is your API key.
+                <span dangerouslySetInnerHTML={{__html: registrationUrlText}}/>
               </FormDescription>
               <FormMessage/>
             </FormItem>
