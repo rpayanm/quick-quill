@@ -89,7 +89,7 @@ export function App() {
   return (
     <>
       <div style={containerStyle}
-           className="prose absolute z-50 bg-black text-white text-xs rounded-sm h-auto w-auto p-2.5 shadow-md">
+           className="prose absolute z-50 bg-black text-white rounded-sm h-auto w-auto p-2.5 shadow-md">
         <div
              className="mr-8 max-w-md max-h-52 overflow-y-auto"
               dangerouslySetInnerHTML={{__html: response.replace(/\n/g, '<br>')}}></div>

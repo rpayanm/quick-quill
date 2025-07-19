@@ -2,7 +2,7 @@
   "name": "quick-quill",
   "description": "A browser extension that allows you to execute AI prompts on selected text directly in your browser.",
   "private": true,
-  "version": "0.0.3",
+  "version": "0.0.4",
   "type": "module",
   "scripts": {
     "dev": "wxt",
