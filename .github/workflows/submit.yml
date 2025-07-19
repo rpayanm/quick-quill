@@ -20,14 +20,15 @@ jobs:
 
       - name: Zip extensions
         run: |
-          wxt zip
-          wxt zip:firefox
+          npm run zip
+          npm run zip:firefox
 
       - name: Submit to stores
         run: |
-          wxt submit \
+          npx wxt submit \
             --chrome-zip .output/*-chrome.zip \
             --firefox-zip .output/*-firefox.zip --firefox-sources-zip .output/*-sources.zip
+
         env:
           CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
           CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
