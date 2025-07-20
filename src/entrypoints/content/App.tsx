@@ -1,7 +1,8 @@
-import { useState, useEffect, CSSProperties } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { onMessage } from '@/utils/messaging';
 import { Copy } from 'lucide-react';
 import getResponse from '@/utils/ai.ts';
+import { computePosition, flip, shift, offset } from '@floating-ui/dom';
 
 export function App() {
   const getSelectedPosition = (): DOMRect | null => {
@@ -40,10 +41,10 @@ export function App() {
   };
 
   const [response, setResponse] = useState<string>('');
+  const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
+  const [popoverPosition, setPopoverPosition] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
 
-  const [containerStyle, setContainerStyle] = useState<CSSProperties>({
-    display: 'none',
-  });
+  const popoverRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     window.addEventListener('click', ({ target }) => {
@@ -56,9 +57,7 @@ export function App() {
         target.closest('quick-quill');
 
       if (!isContentArea) {
-        setContainerStyle({
-          display: 'none',
-        });
+        setIsPopoverOpen(false);
       }
     });
 
@@ -71,11 +70,29 @@ export function App() {
 
       const selectedPosition = getSelectedPosition();
 
-      setContainerStyle({
-        display: 'block',
-        left: `${selectedPosition?.left || 0}px`,
-        top: `${(selectedPosition?.bottom || 0) + window.scrollY + 10}px`,
-      });
+      if (!selectedPosition) {
+        return;
+      }
+
+      // Create a virtual element at the selection position
+      const virtualElement = {
+        getBoundingClientRect: () => selectedPosition,
+      };
+
+      // Position the popover using floating-ui
+      if (popoverRef.current) {
+        computePosition(virtualElement, popoverRef.current, {
+          placement: 'bottom-start',
+          middleware: [
+            offset(6),
+            flip(),
+            shift({ padding: 5 }),
+          ],
+        }).then(({ x, y }) => {
+          setPopoverPosition({ x, y });
+          setIsPopoverOpen(true);
+        });
+      }
 
       setResponse(`Working on "${message.data.name}"...`);
 
@@ -83,23 +100,34 @@ export function App() {
         setResponse(response);
       });
     });
+
     return () => removeListener();
   }, []);
 
   return (
     <>
-      <div style={containerStyle}
-           className="prose absolute z-50 bg-black text-white rounded-sm h-auto w-auto p-2.5 shadow-md">
+      <div
+        ref={popoverRef}
+        style={{
+          position: 'absolute',
+          left: `${popoverPosition.x}px`,
+          top: `${popoverPosition.y}px`,
+          zIndex: 100000,
+          display: isPopoverOpen ? 'block' : 'none',
+        }}
+        className="prose bg-black text-white rounded-sm h-auto w-auto p-2.5 shadow-md"
+      >
         <div
-             className="mr-8 max-w-md max-h-52 overflow-y-auto"
-              dangerouslySetInnerHTML={{__html: response.replace(/\n/g, '<br>')}}></div>
-        <Copy className="text-white cursor-pointer absolute top-1 right-1"
-              onClick={() => {
-                navigator.clipboard.writeText(response);
-                setContainerStyle({
-                  display: 'none',
-                });
-              }}/>
+          className="mr-8 max-w-md max-h-52 overflow-y-auto"
+          dangerouslySetInnerHTML={{ __html: response.replace(/\n/g, '<br>') }}
+        />
+        <Copy 
+          className="text-white cursor-pointer absolute top-1 right-1"
+          onClick={() => {
+            navigator.clipboard.writeText(response);
+            setIsPopoverOpen(false);
+          }}
+        />
       </div>
     </>
   );
